@@ -1,0 +1,45 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             Int        @id @default(autoincrement())
+  email          String     @unique
+  name           String?
+  supertokensId  String     @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  createdBy      Int?
+  updatedBy      Int?
+  accounts       Account[]
+}
+
+model Account {
+  id         Int         @id @default(autoincrement())
+  type       String
+  number     String      @unique
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  createdBy  Int?
+  updatedBy  Int?
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  type       String   @db.Char(1) // 'c' for credit, 'd' for debit
+  amount     Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  createdBy  Int?
+  updatedBy  Int?
+  accountId  Int
+  account    Account  @relation(fields: [accountId], references: [id])
+}

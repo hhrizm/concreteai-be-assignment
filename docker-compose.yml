@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://postgres:postgres@db:5432/cncaidb
+      SUPERTOKENS_CONNECTION_URI: http://supertokens:3567
+      SUPERTOKENS_API_KEY:  #empty
+      DOMAIN_URL: https://localhost:3000
+      SWAGGER_URL: localhost:3000
+    depends_on:
+      - supertokens
+      - db
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cncaidb
+    ports:
+      - "5421:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:9.1.2
+    environment:
+      POSTGRESQL_USER: postgres
+      POSTGRESQL_PASSWORD: postgres
+      POSTGRESQL_HOST: db
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_DATABASE_NAME: cncaidb
+      POSTGRESQL_TABLE_SCHEMA: supertokens
+    ports:
+      - "3567:3567"
+
+volumes:
+  postgres_data:
